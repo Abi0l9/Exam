@@ -2,7 +2,11 @@ from django.db import models
 
 # Create your models here.
 class Exam(models.Model):
-  name = models.CharField(max_length = 255)
+  name = models.CharField(max_length = 255, unique=True)
+
+  @property
+  def years_count(self):
+    return self.name.count()
   
   class Meta:
     verbose_name_plural = "Exams"
@@ -13,21 +17,32 @@ class Exam(models.Model):
 
   
 class Year(models.Model):
-  year = models.IntegerField()
-  exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING)
+  year = models.IntegerField(unique=True)
+  exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, related_name='years')
+
+  @property
+  def months_count(self):
+    return self.months.count()
   
   class Meta:
     verbose_name_plural = "Years"
     ordering = ['id']
   
   def __str__(self):
-    return self.year
+    return f'{self.year}'
+
 
   
 class Month(models.Model):
-  name = models.CharField(max_length = 255)
-  year = models.ForeignKey(Year, on_delete=models.DO_NOTHING)
-  exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING)
+  MONTHS = [
+    ('MAY/JUN','MAY/JUNE'),
+    ('JUN/JUL','JUNE/JULY'),
+    ('OCT/NOV', 'OCTOBER/NOVEMBER'),
+    ('Others', 'Others'),
+  ]
+  name = models.CharField(max_length = 20, choices=MONTHS)
+  year = models.ForeignKey(Year, on_delete=models.DO_NOTHING, related_name='months')
+  exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, related_name='months')
   
   class Meta:
     verbose_name_plural = "Months"
@@ -37,10 +52,11 @@ class Month(models.Model):
     return self.name
 		
 class Subject(models.Model):
-  name = models.CharField(max_length = 255)
-  month = models.ForeignKey(Month, on_delete=models.DO_NOTHING)
-  year = models.ForeignKey(Year, on_delete=models.DO_NOTHING)
-  exam_name = models.ForeignKey(Exam, on_delete=models.DO_NOTHING)
+
+  name = models.CharField(max_length = 255, unique=True)
+  month = models.ForeignKey(Month, on_delete=models.DO_NOTHING, related_name='subjects')
+  year = models.ForeignKey(Year, on_delete=models.DO_NOTHING, default=1, related_name='subjects')
+  exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, default=1, related_name='subjects')
   
   class Meta:
     verbose_name_plural = "Subjects"
@@ -52,10 +68,11 @@ class Subject(models.Model):
   
 class Question(models.Model):
   question_text = models.TextField()
-  subject = models.ForeignKey(Subject, on_delete=models.DO_NOTHING)
-  year = models.ForeignKey(Year, on_delete=models.DO_NOTHING)
-  month = models.ForeignKey(Month, on_delete=models.DO_NOTHING)
-  exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING)
+  subject = models.ForeignKey(Subject, on_delete=models.DO_NOTHING, related_name='questions')
+  month = models.ForeignKey(Month, on_delete=models.DO_NOTHING, default=1, related_name='questions')
+  year = models.ForeignKey(Year, on_delete=models.DO_NOTHING, default=1, related_name='questions')
+  exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, default=1, related_name='questions')
+  
   
   class Meta:
     verbose_name_plural = "Questions"
@@ -66,14 +83,14 @@ class Question(models.Model):
 
   
 class Answer(models.Model):
-  answer = models.CharField(max_length=255)
+  text = models.CharField(max_length=255)
   correct = models.BooleanField(default=False)
-  question = models.ForeignKey(Question, on_delete=models.DO_NOTHING)
-  subject = models.ForeignKey(Subject, on_delete=models.DO_NOTHING)
-  month = models.ForeignKey(Month, on_delete=models.DO_NOTHING)
-  month = models.ForeignKey(Month, on_delete=models.DO_NOTHING)
-  year = models.ForeignKey(Year, on_delete=models.DO_NOTHING)
-  exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING)
+  question = models.ForeignKey(Question, on_delete=models.DO_NOTHING, related_name='answers')
+  subject = models.ForeignKey(Subject, on_delete=models.DO_NOTHING, related_name='answers')
+  month = models.ForeignKey(Month, on_delete=models.DO_NOTHING, default=1, related_name='answers')
+  year = models.ForeignKey(Year, on_delete=models.DO_NOTHING, default=1, related_name='answers')
+  exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, default=1, related_name='answers')
+
   
   class Meta:
     verbose_name_plural = "Answers"
