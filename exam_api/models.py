@@ -17,7 +17,7 @@ class Exam(models.Model):
 
   
 class Year(models.Model):
-  year = models.IntegerField(unique=True)
+  year = models.IntegerField()
   exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, related_name='years')
 
   @property
@@ -29,7 +29,7 @@ class Year(models.Model):
     ordering = ['id']
   
   def __str__(self):
-    return f'{self.year}'
+    return f'{self.year} - {self.exam.name}'
 
 
   
@@ -53,10 +53,10 @@ class Month(models.Model):
 		
 class Subject(models.Model):
 
-  name = models.CharField(max_length = 255, unique=True)
+  name = models.CharField(max_length = 255)
   month = models.ForeignKey(Month, on_delete=models.DO_NOTHING, related_name='subjects')
-  year = models.ForeignKey(Year, on_delete=models.DO_NOTHING, default=1, related_name='subjects')
-  exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, default=1, related_name='subjects')
+  year = models.ForeignKey(Year, on_delete=models.DO_NOTHING, related_name='subjects')
+  exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, related_name='subjects')
   
   class Meta:
     verbose_name_plural = "Subjects"
@@ -67,11 +67,11 @@ class Subject(models.Model):
 
   
 class Question(models.Model):
-  question_text = models.TextField()
+  question_text = models.TextField(db_index=True)
   subject = models.ForeignKey(Subject, on_delete=models.DO_NOTHING, related_name='questions')
-  month = models.ForeignKey(Month, on_delete=models.DO_NOTHING, default=1, related_name='questions')
-  year = models.ForeignKey(Year, on_delete=models.DO_NOTHING, default=1, related_name='questions')
-  exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, default=1, related_name='questions')
+  month = models.ForeignKey(Month, on_delete=models.DO_NOTHING, related_name='questions')
+  year = models.ForeignKey(Year, on_delete=models.DO_NOTHING, related_name='questions')
+  exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, related_name='questions')
   
   
   class Meta:
@@ -83,13 +83,17 @@ class Question(models.Model):
 
   
 class Answer(models.Model):
-  text = models.CharField(max_length=255)
-  correct = models.BooleanField(default=False)
-  question = models.ForeignKey(Question, on_delete=models.DO_NOTHING, related_name='answers')
-  subject = models.ForeignKey(Subject, on_delete=models.DO_NOTHING, related_name='answers')
-  month = models.ForeignKey(Month, on_delete=models.DO_NOTHING, default=1, related_name='answers')
-  year = models.ForeignKey(Year, on_delete=models.DO_NOTHING, default=1, related_name='answers')
-  exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, default=1, related_name='answers')
+  option_1 = models.CharField(max_length=255, default=None )
+  option_2 = models.CharField(max_length=255, default=None )
+  option_3 = models.CharField(max_length=255, default=None )
+  option_4 = models.CharField(max_length=255, default=None )
+  answer = models.CharField(max_length=255, default=None )
+  # correct = models.BooleanField(default=False)
+  question = models.ForeignKey(Question, on_delete=models.DO_NOTHING,  related_name='answers')
+  subject = models.ForeignKey(Subject, on_delete=models.DO_NOTHING,  related_name='answers')
+  month = models.ForeignKey(Month, on_delete=models.DO_NOTHING, related_name='answers')
+  year = models.ForeignKey(Year, on_delete=models.DO_NOTHING, related_name='answers')
+  exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, related_name='answers')
 
   
   class Meta:

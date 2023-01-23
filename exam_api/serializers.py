@@ -46,5 +46,5 @@ class QuestionSerializer(serializers.ModelSerializer):
 class AnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ['id', 'question', 'text', 'correct', 'subject', 'month', 'year', 'exam']
+        fields = ['id', 'exam', 'year', 'month', 'subject', 'question', 'option_1', 'option_2', 'option_3', 'option_4', 'answer' ]
         model = Answer
