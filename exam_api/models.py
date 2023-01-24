@@ -17,7 +17,7 @@ class Exam(models.Model):
 
   
 class Year(models.Model):
-  year = models.IntegerField()
+  year = models.CharField(max_length=255)
   exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, related_name='years')
 
   @property
@@ -52,8 +52,32 @@ class Month(models.Model):
     return self.name
 		
 class Subject(models.Model):
-
-  name = models.CharField(max_length = 255)
+  SUBJECTS = [
+    ('General Mathematics', 'General Mathematics'),
+    ('Further Mathematics', 'Further Mathematics'),
+    ('English Language', 'English Language'),
+    ('Economics', 'Economics'),
+    ('Physics', 'Physics'),
+    ('Biology', 'Biology'),
+    ('Chemistry', 'Chemistry'),
+    ('Geography', 'Geography'),
+    ('Government', 'Government'),
+    ('Commerce', 'Commerce'),
+    ('Accounting', 'Accounting'),
+    ('History', 'History'),
+    ('Agricultural Science', 'Agricultural Science'),
+    ('Management', 'Management'),
+    ('Civics', 'Civics'),
+    ('Computer Science', 'Computer Science'),
+    ('Marketing', 'Marketing'),
+    ('English Literature', 'English Literature'),
+    ('Islamic Studies', 'Islamic Studies'),
+    ('Christian Religious Studies', 'Christian Religious Studies'),
+    ('Hausa', 'Hausa'),
+    ('Igbo', 'Igbo'),
+    ('Yoruba', 'Yoruba')
+  ]
+  name = models.CharField(max_length = 255, choices=SUBJECTS)
   month = models.ForeignKey(Month, on_delete=models.DO_NOTHING, related_name='subjects')
   year = models.ForeignKey(Year, on_delete=models.DO_NOTHING, related_name='subjects')
   exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, related_name='subjects')
