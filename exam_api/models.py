@@ -3,10 +3,6 @@ from django.db import models
 # Create your models here.
 class Exam(models.Model):
   name = models.CharField(max_length = 255, unique=True)
-
-  @property
-  def years_count(self):
-    return self.name.count()
   
   class Meta:
     verbose_name_plural = "Exams"
@@ -20,9 +16,6 @@ class Year(models.Model):
   year = models.CharField(max_length=255)
   exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, related_name='years')
 
-  @property
-  def months_count(self):
-    return self.months.count()
   
   class Meta:
     verbose_name_plural = "Years"
@@ -49,7 +42,7 @@ class Month(models.Model):
     ordering = ['id']
 
   def __str__(self):
-    return self.name
+    return f'{self.name} - {self.year}'
 		
 class Subject(models.Model):
   SUBJECTS = [
@@ -84,7 +77,11 @@ class Subject(models.Model):
   
   class Meta:
     verbose_name_plural = "Subjects"
-    ordering = ['id']
+    ordering = ['exam', 'year']
+
+  def __repr__(self) -> str:
+    print(self)
+    return super().__repr__()
 
   def __str__(self):
     return self.name
@@ -97,6 +94,10 @@ class Question(models.Model):
   year = models.ForeignKey(Year, on_delete=models.DO_NOTHING, related_name='questions')
   exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, related_name='questions')
   
+  @property
+  def counts(self):
+    questions = self.Objects.all()
+    return len(questions)
   
   class Meta:
     verbose_name_plural = "Questions"
